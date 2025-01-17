@@ -32,51 +32,33 @@ print(len(files))
 ana=analyzer(files)
 ana.Cut("Jet","nJet>=2 || nFatJet>=1")
 
-ana.Define("GenHGGJetsIdx","GenHGG(nGenPart,GenPart_pdgId,GenPart_genPartIdxMother)")
+ana.Define("GenRelevantPartIdx","GenRelevantPartMatching_HGGWLNu(nGenPart,GenPart_pdgId,GenPart_genPartIdxMother)")
+#ana.Define("GenHGGJetsIdx","GenHGG(nGenPart,GenPart_pdgId,GenPart_genPartIdxMother)")
+ana.Define("GenHGGJetsIdx","RVec<Int_t>({GenRelevantPartIdx.at(2),GenRelevantPartIdx.at(3)})")
+ana.Define("GenHIdx","RVec<Int_t>({GenRelevantPartIdx.at(1)})")
+ana.Define("GenLIdx","RVec<Int_t>({GenRelevantPartIdx.at(5)})")
+ana.Define("Gen_JetsInvMass","InvMass_PtEtaPhiM(FQuantityMatching(GenHGGJetsIdx,GenPart_pt),FQuantityMatching(GenHGGJetsIdx,GenPart_eta),FQuantityMatching(GenHGGJetsIdx,GenPart_phi),FQuantityMatching(GenHGGJetsIdx,GenPart_mass))") 
 
-ana.Define("Gen_JetsPt","FQuantity_match(GenHGGJetsIdx,GenPart_pt)")
-ana.Define("Gen_JetsPhi","FQuantity_match(GenHGGJetsIdx,GenPart_phi)")
-ana.Define("Gen_JetsEta","FQuantity_match(GenHGGJetsIdx,GenPart_eta)")
-ana.Define("Gen_JetsMass","FQuantity_match(GenHGGJetsIdx,GenPart_mass)")
-ana.Define("Gen_JetsInvMass","InvMass(Gen_JetsPt,Gen_JetsEta,Gen_JetsPhi,Gen_JetsMass)")
 
-ana.Define("Matched_JetsIdx","Jet_match(GenHGGJetsIdx,nJet,Jet_phi,Jet_eta,GenPart_phi,GenPart_eta)")
+ana.Define("Matched_JetsIdx","RecoPartMatching_deltaR(GenHGGJetsIdx,GenPart_eta,GenPart_phi,Jet_eta,Jet_phi,0.4)")
 
-ana.Define("Matched_JetsPt","FQuantity_match(Matched_JetsIdx,Jet_pt)")
-ana.Define("Matched_JetsPhi","FQuantity_match(Matched_JetsIdx,Jet_phi)")
-ana.Define("Matched_JetsEta","FQuantity_match(Matched_JetsIdx,Jet_eta)")
-ana.Define("Matched_JetsMass","FQuantity_match(Matched_JetsIdx,Jet_mass)")
-ana.Define("Matched_JetsInvMass","InvMass(Matched_JetsPt,Matched_JetsEta,Matched_JetsPhi,Matched_JetsMass)")
+ana.Define("Reco_JetsInvMass","InvMass_PtEtaPhiM(FQuantityMatching(Matched_JetsIdx,Jet_pt),FQuantityMatching(Matched_JetsIdx,Jet_eta),FQuantityMatching(Matched_JetsIdx,Jet_phi),FQuantityMatching(Matched_JetsIdx,Jet_mass))") 
 
-ana.Define("Matched_FatJetsIdx","FatJet_match(GenHGGJetsIdx,nFatJet,FatJet_phi,FatJet_eta,GenPart_phi,GenPart_eta)")
-ana.Define("Matched_FatJetsPt","FQuantity_match(Matched_FatJetsIdx,FatJet_pt)")
-ana.Define("Matched_FatJetsPhi","FQuantity_match(Matched_FatJetsIdx,FatJet_phi)")
-ana.Define("Matched_FatJetsEta","FQuantity_match(Matched_FatJetsIdx,FatJet_eta)")
-ana.Define("Matched_FatJetsMass","FQuantity_match(Matched_FatJetsIdx,FatJet_mass)")
-ana.Define("Matched_FatJetsMassf","Matched_FatJetsMass.at(0)")
-'''
-c_gen=ROOT.TCanvas("c","c")
-c_gen.cd()
-h_gen=ana.DataFrame.Filter("Gen_JetsInvMass>0").Histo1D( ('Gen_InvMass','Gen_InvMass',20,80,170), 'Gen_JetsInvMass') 
-h_gen.Draw()
-c_gen.Print("gen.pdf")
 
-c_jet=ROOT.TCanvas("c","c")
-c_jet.cd()
-h_jet=ana.DataFrame.Filter("Matched_JetsInvMass>0").Histo1D( ('MatchedJets_InvMass','MatchedJets_InvMass',20,80,170), 'Matched_JetsInvMass') 
-h_jet.Draw()
-c_jet.Print("jet.pdf")
+ana.Define("Matched_FatJetsIdx","RecoPartMatching_deltaR(GenHIdx,GenPart_eta,GenPart_phi,FatJet_eta,FatJet_phi,0.8)")
 
-c_fatjet=ROOT.TCanvas("c","c")
-c_fatjet.cd()
-h_fatjet=ana.DataFrame.Filter("Matched_FatJetsMassf>0").Histo1D( ('MatchedFatJets_InvMass','MatchedFatJets_InvMass',20,80,170), 'Matched_FatJetsMassf') 
-h_fatjet.Draw()
-c_fatjet.Print("fatjet.pdf")
 
-exit()
-'''
+ana.Define("Reco_FatJetsMass","FQuantityMatching({Matched_FatJetsIdx},FatJet_mass)") 
+
+ana.Define("MatchedwithGG_FatJetsIdx","FatJetMatching_deltaR(GenHGGJetsIdx,GenPart_eta,GenPart_phi,FatJet_eta,FatJet_phi,0.8)")
+
+ana.Define("RecowithGG_FatJetsMass","FQuantityMatching({MatchedwithGG_FatJetsIdx},FatJet_mass)") 
+
+
+ana.Define("Matched_ElectronIdx","RecoPartMatching_deltaR(GenLIdx,GenPart_eta,GenPart_phi,Electron_eta,Electron_phi,0.4)")
+ana.Define("Matched_MuonIdx","RecoPartMatching_deltaR(GenLIdx,GenPart_eta,GenPart_phi,Muon_eta,Muon_phi,0.4)")
+ana.Define("Matched_TauIdx","RecoPartMatching_deltaR(GenLIdx,GenPart_eta,GenPart_phi,Tau_eta,Tau_phi,0.4)")
 #columns=["nGenPart","GenPart_eta","GenPart_phi","GenPart_pt","nJet","Jet_eta","Jet_phi","Jet_pt","nFatJet","FatJet_eta","FatJet_phi","FatJet_pt","FatJet_mass","GenHGGJetsIdx","Matched_JetsIdx","Matched_FatJetsIdx"]
-#columns=["GenHGGJetsIdx","Matched_JetsIdx","Matched_FatJetsIdx"]
-#columns=["nGenPart","GenPart_eta","GenPart_phi","GenPart_pt","nJet","Jet_eta","Jet_phi","Jet_pt","nFatJet","FatJet_eta","FatJet_phi","FatJet_pt","FatJet_mass","nCorrT1METJet","nSoftActivityJet","nSubJet"]
-columns=["GenHGGJetsIdx","Gen_JetsPt","Gen_JetsEta","Gen_JetsPhi","Gen_JetsMass","Gen_JetsInvMass","Matched_JetsIdx","Matched_JetsPt","Matched_JetsEta","Matched_JetsPhi","Matched_JetsMass","Matched_JetsInvMass","Matched_FatJetsIdx","Matched_FatJetsPt","Matched_FatJetsEta","Matched_FatJetsPhi","Matched_FatJetsMass"]
+
+columns=["GenRelevantPartIdx","GenHGGJetsIdx","GenHIdx","GenLIdx","Gen_JetsInvMass","Matched_JetsIdx","Reco_JetsInvMass","Matched_FatJetsIdx","Reco_FatJetsMass","MatchedwithGG_FatJetsIdx","RecowithGG_FatJetsMass","Matched_ElectronIdx","Matched_MuonIdx","Matched_TauIdx"]
 ana.Snapshot(columns,f"result_{args.n_jobs}_{args.i_job}.root","Events")
