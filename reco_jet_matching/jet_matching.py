@@ -40,12 +40,12 @@ ana.Define("GenLIdx","RVec<Int_t>({GenRelevantPartIdx.at(5)})")
 ana.Define("Gen_JetsInvMass","InvMass_PtEtaPhiM(FQuantityMatching(GenHGGJetsIdx,GenPart_pt),FQuantityMatching(GenHGGJetsIdx,GenPart_eta),FQuantityMatching(GenHGGJetsIdx,GenPart_phi),FQuantityMatching(GenHGGJetsIdx,GenPart_mass))") 
 
 
-ana.Define("Matched_JetsIdx","RecoPartMatching_deltaR(GenHGGJetsIdx,GenPart_eta,GenPart_phi,Jet_eta,Jet_phi,0.4)")
+ana.Define("Matched_JetsIdx","RecoPartMatching_deltaR(GenHGGJetsIdx,GenPart_eta,GenPart_phi,Jet_eta,Jet_phi,0.05)")
 
 ana.Define("Reco_JetsInvMass","InvMass_PtEtaPhiM(FQuantityMatching(Matched_JetsIdx,Jet_pt),FQuantityMatching(Matched_JetsIdx,Jet_eta),FQuantityMatching(Matched_JetsIdx,Jet_phi),FQuantityMatching(Matched_JetsIdx,Jet_mass))") 
 
 
-ana.Define("Matched_FatJetsIdx","RecoPartMatching_deltaR(GenHIdx,GenPart_eta,GenPart_phi,FatJet_eta,FatJet_phi,0.8)")
+ana.Define("Matched_FatJetsIdx","RecoPartMatching_deltaR(GenHIdx,GenPart_eta,GenPart_phi,FatJet_eta,FatJet_phi,0.05)")
 
 
 ana.Define("Reco_FatJetsMass","FQuantityMatching({Matched_FatJetsIdx},FatJet_mass)") 
