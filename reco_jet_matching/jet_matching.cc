@@ -71,6 +71,63 @@ RVec<Int_t> GenRelevantPartMatching_HGGWLNu(Int_t nGenPart,RVec<Int_t> GenPart_p
         return Idxs; 
 } 
 
+
+RVec<Int_t> GenRelevantPartMatching_HGGZLL(Int_t nGenPart,RVec<Int_t> GenPart_pdgId, RVec<Int_t> GenPart_genPartIdxMother) 
+{ 
+        ROOT::VecOps::RVec<Int_t> Idxs={-1 , -1 , -1 , -1 , -1 , -1 , -1}; // Mother W, Higgs, Gluon, Gluon, Daughter W, Lepton, Antilepton 
+        //Looking for two gluons from Higgs
+	Int_t count=0; 
+        for (Int_t i = 0 ; i < nGenPart ; i++)
+	{ 
+            if (GenPart_pdgId[i] == 21 && GenPart_genPartIdxMother[i] >= 0 && GenPart_pdgId[GenPart_genPartIdxMother[i]] == 25)
+	    { 
+                Idxs.at(count+2) = i;
+                count++; 
+                if(count == 2) 
+			break;
+            } 
+        }
+	//If two gluons share the same mother, then register the mother
+	if(Idxs.at(2) > 0 && Idxs.at(3) > 0 && GenPart_genPartIdxMother[Idxs.at(2)] == GenPart_genPartIdxMother[Idxs.at(3)])
+		Idxs.at(1)=GenPart_genPartIdxMother[Idxs.at(2)];	
+       	
+	//Looking for the mother W
+	
+	if( Idxs.at(1) > 0)
+	{
+		Idxs.at(0) = GenPart_genPartIdxMother[Idxs.at(1)];
+		//The mother of a Higgs could be another Higgs due to generator features. so we trace back until finding the real mother
+		while( GenPart_pdgId[Idxs.at(0)] == 25 )
+		{
+			Idxs.at(0) = GenPart_genPartIdxMother[Idxs.at(0)];
+		}
+	}
+
+        //We can't find the mother W from the gen info, so we directly look for the lepton and the neutrino from a W
+	
+	for (Int_t i = 0 ; i < nGenPart ; i++)
+	{ 
+            if (GenPart_pdgId[GenPart_genPartIdxMother[i]] == 23)
+	    {
+			if(GenPart_pdgId[i] == 11 || GenPart_pdgId[i] == 13 || GenPart_pdgId[i] == 15)//Lepton
+                		Idxs.at(5) = i;
+			else if(GenPart_pdgId[i] == -11 || GenPart_pdgId[i] == -13 || GenPart_pdgId[i] == -15)//Lepton
+                		Idxs.at(6) = i;
+	    }
+        }
+
+	//to-do: Should check if the lepton pair is of the same flavor
+
+	//If the lepton and the neotrino are from the same W, then register the W as the daughter W
+	if(Idxs.at(5) > 0 && Idxs.at(6) > 0 && GenPart_genPartIdxMother[Idxs.at(5)] == GenPart_genPartIdxMother[Idxs.at(6)])
+		Idxs.at(4) = GenPart_genPartIdxMother[Idxs.at(5)];
+	
+	//to-do: Should add another check that the daughter W and the Higgs are from the same mother
+	
+        return Idxs; 
+}
+
+
 //Function for matching Reco particles to a GenPart with delta R method                             
 Int_t RecoPartMatching_deltaR(Float_t gen_eta, Float_t gen_phi, RVec<Float_t> Reco_etas, RVec<Float_t> Reco_phis, Float_t deltaR_thrhd=0.4) {
         Int_t idx = -1;
@@ -96,6 +153,8 @@ Int_t RecoPartMatching_deltaR(Float_t gen_eta, Float_t gen_phi, RVec<Float_t> Re
                 idx = -1;
         return idx;
 }
+
+
 //Overloading function to Reco matching for a vector of GnParts
 RVec<Int_t> RecoPartMatching_deltaR(RVec<Float_t> Gen_etas, RVec<Float_t> Gen_phis, RVec<Float_t> Reco_etas, RVec<Float_t> Reco_phis, Float_t deltaR_thrhd=0.4) 
 {
