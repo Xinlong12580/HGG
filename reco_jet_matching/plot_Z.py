@@ -1,6 +1,6 @@
 import ROOT
 ROOT.gROOT.SetBatch(True)
-rdf=ROOT.RDataFrame("Events","result_Z_60_0.root")
+rdf=ROOT.RDataFrame("Events","result_Z_v2_60_0.root")
 
 c_gen=ROOT.TCanvas("c","c")
 c_gen.cd()
@@ -20,6 +20,12 @@ h_fatjet=rdf.Filter("Reco_FatJetsMass.at(0)>0").Histo1D( ('MatchedFatJets_InvMas
 h_fatjet.Draw()
 c_fatjet.Print("fatjet_Z.pdf")
 
+c_fatjetall=ROOT.TCanvas("c","c")
+c_fatjetall.cd()
+h_fatjetall=rdf.Histo1D( ('FatJets_InvMass','FatJets_InvMass',50,0,200), 'FatJet_msoftdrop') 
+h_fatjetall.Draw()
+c_fatjetall.Print("fatjet_Zall.pdf")
+
 c_fatjetGG=ROOT.TCanvas("c","c")
 c_fatjetGG.cd()
 h_fatjetGG=rdf.Filter("RecowithGG_FatJetsMass.at(0)>0").Histo1D( ('MatchedFatJets_InvMass','MatchedFatJets_InvMass',50,0,200), 'RecowithGG_FatJetsMass') 
@@ -36,4 +42,15 @@ h_Z.Add(h_MuMu.GetPtr())
 h_Z.Add(h_TauTau.GetPtr())
 h_Z.Draw()
 c_Z.Print("ZLL.pdf")
+
+c_ZPt=ROOT.TCanvas("c","c")
+c_ZPt.cd()
+h_EEPt=rdf.Filter("HighPt_EEInvMass>0").Histo1D( ('MatchedZ_InvMass','MatchedZ_InvMass',50,0,200), 'HighPt_EEInvMass') 
+h_MuMuPt=rdf.Filter("HighPt_MuMuInvMass>0").Histo1D( ('MatchedZ_InvMass','MatchedZ_InvMass',50,0,200), 'HighPt_MuMuInvMass') 
+h_TauTauPt=rdf.Filter("HighPt_TauTauInvMass>0").Histo1D( ('MatchedZ_InvMass','MatchedZ_InvMass',50,0,200), 'HighPt_TauTauInvMass') 
+h_ZPt=h_EEPt.Clone()
+h_ZPt.Add(h_MuMuPt.GetPtr())
+h_ZPt.Add(h_TauTauPt.GetPtr())
+h_ZPt.Draw()
+c_ZPt.Print("ZLLPt.pdf")
 exit()

@@ -9,7 +9,7 @@ parser=ArgumentParser()
 parser.add_argument('-n', type=int, dest='n_jobs',action='store', required=True)
 parser.add_argument('-i', type=int, dest='i_job',action='store', required=True)
 args=parser.parse_args()
-CompileCpp("jet_matching.cc")
+CompileCpp("Matching.cc")
 
 files=[]
 file_name="raw_nano/HToGG_WminusToLNu_16.txt"

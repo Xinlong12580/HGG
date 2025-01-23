@@ -18,6 +18,57 @@ RVec<Float_t> FQuantityMatching (RVec<Int_t> Idxs, RVec<Float_t> Vals)
 	return Matched_vals;
 }
 
+RVec<Int_t> FMaxIdxFinding(RVec<Float_t> Vals, Int_t nRequired)
+{
+       	RVec<Int_t> MaxIdxs(nRequired, -1);
+	if (Vals.size() < nRequired)
+		return MaxIdxs;
+                //throw std::runtime_error("Vector size should be larger than the required number");
+       std::priority_queue<Float_t, RVec<Float_t>, std::greater<Float_t>> Maxs; //use a priority_queque tostrip the smallest variables
+       for (auto val : Vals)
+       {
+	       Maxs.push(val);
+	       if(Maxs.size() > nRequired)
+		       Maxs.pop();
+       }
+       MaxIdxs.clear();
+       while(! Maxs.empty())
+       {
+	       MaxIdxs.push_back(std::distance(Vals.begin(), std::find(Vals.begin(), Vals.end(), Maxs.top())));
+	       Maxs.pop();
+       }
+       return MaxIdxs;
+}
+
+RVec<Int_t> LeptonPairIdxFinding(RVec<Float_t> Vals, RVec<Int_t> Signs)
+{
+	if(Vals.size() != Signs.size())
+                throw std::runtime_error("Value vector and sign vector should be of the same size");
+	RVec<Int_t> Pos_idxs = {};
+	RVec<Float_t> Pos_vals = {};
+	RVec<Int_t> Neg_idxs = {};
+	RVec<Float_t> Neg_vals = {};
+	for( Int_t i = 0; i < Vals.size(); i++)
+	{
+		if (Signs.at(i) == 1)
+		{
+			Pos_idxs.push_back(i);
+			Pos_vals.push_back(Vals.at(i));
+		}
+		else if (Signs.at(i) == -1)
+		{
+			Neg_idxs.push_back(i);
+			Neg_vals.push_back(Vals.at(i));
+		}
+	}
+	Int_t pos_idx = FMaxIdxFinding(Pos_vals, 1).at(0);
+	Int_t neg_idx = FMaxIdxFinding(Neg_vals, 1).at(0);
+	Int_t pos_idx_oriVec = pos_idx >= 0 ? Pos_idxs.at(pos_idx) : -1;
+	Int_t neg_idx_oriVec = neg_idx >= 0 ? Neg_idxs.at(neg_idx) : -1;
+	RVec<Int_t> Idxs = {pos_idx_oriVec, neg_idx_oriVec};
+	return Idxs;
+		
+}
 
 RVec<Int_t> GenRelevantPartMatching_HGGWLNu(Int_t nGenPart,RVec<Int_t> GenPart_pdgId, RVec<Int_t> GenPart_genPartIdxMother) 
 { 
