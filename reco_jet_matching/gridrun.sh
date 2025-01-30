@@ -61,9 +61,9 @@ pwd | tee -a $root_dir/out.txt
 export X509_CERT_DIR=/cvmfs/grid.cern.ch/etc/grid-security/certificates/
 
 # MAIN FUNCTION
-echo python jet_matching.sh $* | tee -a $root_dir/out.txt
-python jet_matching.py $* | tee -a $root_dir/out.txt
+echo python snapshot.sh $* | tee -a $root_dir/out.txt
+python snapshot.py $* | tee -a $root_dir/out.txt
 ls | tee -a $root_dir/out.txt
 # move all snapshots to the EOS (there will only be one)
-xrdcp -f *.root root://cmseos.fnal.gov//store/user/xinlong/jet_matching
-xrdcp -f $root_dir/out.txt root://cmseos.fnal.gov//store/user/xinlong/jet_matching
+xrdcp -f *.root root://cmseos.fnal.gov//store/user/xinlong/HGG/
+xrdcp -f $root_dir/out.txt root://cmseos.fnal.gov//store/user/xinlong/HGG/
